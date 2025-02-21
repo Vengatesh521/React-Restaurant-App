@@ -1,0 +1,117 @@
+/* Category Tabs */
+.category-tabs {
+  display: flex;
+  gap: 15px;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 5px;
+  overflow-x: auto;
+}
+
+.category-item {
+  position: relative;
+  cursor: pointer;
+  font-size: 18px;
+  color: black;
+  transition: color 0.3s ease;
+}
+
+.category-item.active {
+  color: #ff5733;
+}
+
+.category-item::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 3px;
+  background-color: #ff5733;
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  transition: width 0.3s ease-in-out;
+}
+
+.category-item.active::after {
+  width: 100%;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: black;
+  color: white;
+}
+
+.navbar h1 {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.cart-icon {
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Style for the Veg/Non-Veg Icon */
+.veg-nonveg-icon {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+/* Dish List */
+.list-group-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+  position: relative;
+}
+
+/* Dish Details */
+.dish-details {
+  position: relative;
+  flex-grow: 1;
+  padding-left: 35px; /* Prevent text from overlapping the icon */
+}
+
+.dish-details h3 {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.dish-details p {
+  margin: 2px 0;
+}
+
+/* Dish Image */
+.dish-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Quantity Controls */
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.quantity-controls button {
+  border: none;
+  padding: 5px 10px;
+  font-size: 16px;
+}
+
+.quantity-controls span {
+  margin: 0 10px;
+  font-size: 16px;
+}
