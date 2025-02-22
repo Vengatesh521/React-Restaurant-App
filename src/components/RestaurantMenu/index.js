@@ -1,32 +1,46 @@
-import {useState, useEffect} from 'react'
+import {useEffect, useState} from 'react'
 import './index.css'
 
-export default function RestaurantMenu() {
+const RestaurantMenu = () => {
   const [categories, setCategories] = useState([])
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [dishes, setDishes] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
   const [quantities, setQuantities] = useState({})
+  const [cartCount, setCartCount] = useState(0)
+  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [restaurantName, setRestaurantName] = useState('Restaurant')
+
+  const dishesApiUrl =
+    'https://apis2.ccbp.in/restaurant-app/restaurant-menu-list-details'
 
   useEffect(() => {
     const fetchMenuData = async () => {
       try {
-        const response = await fetch(
-          'https://apis2.ccbp.in/restaurant-app/restaurant-menu-list-details',
-        )
+        const response = await fetch(dishesApiUrl)
         if (!response.ok) {
-          throw new Error('Network response was not ok')
+          throw new Error('Failed to fetch menu data')
         }
         const data = await response.json()
-        setCategories(data[0].table_menu_list)
+        const menuList = data[0]?.table_menu_list || []
+        setCategories(menuList)
 
-        if (data[0].table_menu_list.length > 0) {
-          const firstCategory = data[0].table_menu_list[0]
-          setSelectedCategory(firstCategory)
-          setDishes(firstCategory.category_dishes)
+        if (menuList.length > 0) {
+          setSelectedCategory(menuList[0])
+          setDishes(menuList[0].category_dishes)
+
+          // Set restaurant name dynamically
+          setRestaurantName(data[0]?.restaurant_name || 'Restaurant')
+
+          // Initialize dish quantities to 0
+          const initialQuantities = {}
+          menuList.forEach(category => {
+            category.category_dishes.forEach(dish => {
+              initialQuantities[dish.dish_id] = 0
+            })
+          })
+          setQuantities(initialQuantities)
         }
-
         setLoading(false)
       } catch (err) {
         setError(err.message)
@@ -40,39 +54,60 @@ export default function RestaurantMenu() {
   const handleCategoryClick = category => {
     setSelectedCategory(category)
     setDishes(category.category_dishes)
+
+    // Reset the dish quantities to 0 for the new category
+    const updatedQuantities = {}
+    category.category_dishes.forEach(dish => {
+      updatedQuantities[dish.dish_id] = quantities[dish.dish_id] || 0
+    })
+    setQuantities(updatedQuantities)
   }
 
   const handleQuantityChange = (dishId, action) => {
-    setQuantities(prevQuantities => ({
-      ...prevQuantities,
-      [dishId]:
+    setQuantities(prevQuantities => {
+      const currentQuantity = prevQuantities[dishId] || 0
+      const newQuantity =
         action === 'increment'
-          ? (prevQuantities[dishId] || 0) + 1
-          : Math.max((prevQuantities[dishId] || 0) - 1, 0),
-    }))
+          ? currentQuantity + 1
+          : Math.max(currentQuantity - 1, 0)
+
+      const updatedQuantities = {...prevQuantities, [dishId]: newQuantity}
+
+      // Update cart count dynamically
+      const newCartCount = Object.values(updatedQuantities).reduce(
+        (sum, qty) => sum + qty,
+        0,
+      )
+      setCartCount(newCartCount)
+
+      return updatedQuantities
+    })
   }
 
   if (loading) {
-    return <div>Loading...</div>
+    return <p>Loading menu...</p>
   }
 
   if (error) {
-    return <div style={{color: 'red'}}>Error: {error}</div>
+    return <p>Error: {error}</p>
   }
 
   return (
-    <div className="container mt-3">
-      {/* Navbar */}
+    <div className="menu-container">
+      {/* Navigation Bar */}
       <nav className="navbar">
-        <h1>UNI Resto Cafe</h1>
+        <h1>{restaurantName}</h1>
         <p>My Orders</p>
-        <span className="cart-icon"> 🛒</span>
+        <span className="cart-icon" role="img" aria-label="cart">
+          🛒 {cartCount}
+        </span>
       </nav>
 
-      {/* Category Tabs */}
-      <div className="category-tabs">
+      {/* Category Buttons */}
+      <div className="category-list">
         {categories.map(category => (
-          <h1
+          <button
+            type="button"
             key={category.menu_category_id}
             className={`category-item ${
               selectedCategory === category ? 'active' : ''
@@ -80,82 +115,56 @@ export default function RestaurantMenu() {
             onClick={() => handleCategoryClick(category)}
           >
             {category.menu_category}
-          </h1>
+          </button>
         ))}
       </div>
 
-      {/* Selected Category Dishes */}
-      {selectedCategory && (
-        <div className="mt-4">
-          <h2>{selectedCategory.menu_category}</h2>
-          <ul className="list-group">
-            {dishes.map(dish => (
-              <li key={dish.dish_id} className="list-group-item">
-                {/* Veg/Non-Veg Symbol */}
-                <img
-                  src={
-                    dish.dish_Type === 2
-                      ? 'https://upload.wikimedia.org/wikipedia/commons/b/b7/Non_veg_symbol.svg'
-                      : 'https://upload.wikimedia.org/wikipedia/commons/b/b2/Veg_symbol.svg'
+      {/* Dish List */}
+      <div className="dish-list">
+        {dishes.map(dish => (
+          <div key={dish.dish_id} className="dish-card">
+            <h3>{dish.dish_name}</h3>
+            <p>
+              {dish.dish_currency} {dish.dish_price}
+            </p>
+            <p>{dish.dish_description}</p>
+            <p role="paragraph">{dish.dish_calories} calories</p>
+            {dish.addonCat.length > 0 && <p>Customizations available</p>}
+            {!dish.dish_Availability && <p>Not available</p>}
+            {dish.dish_Availability && (
+              <div className="quantity-controls">
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={() =>
+                    handleQuantityChange(dish.dish_id, 'decrement')
                   }
-                  alt={dish.dish_Type === 2 ? 'Non-Veg' : 'Veg'}
-                  className="veg-nonveg-icon"
-                />
-
-                {/* Dish Details */}
-                <div className="dish-details">
-                  <h3>{dish.dish_name}</h3>
-                  <p>{dish.dish_description}</p>
-                  <p>
-                    <strong>Price:</strong> {dish.dish_currency}{' '}
-                    {dish.dish_price}
-                  </p>
-                  <p>
-                    <strong>Calories:</strong> {dish.dish_calories}
-                  </p>
-                  {dish.dish_Availability ? (
-                    <p className="text-success">Available</p>
-                  ) : (
-                    <p className="text-danger">Not Available</p>
-                  )}
-
-                  {/* Quantity Controls */}
-                  <div className="quantity-controls">
-                    <button
-                      type="button"
-                      className="btn btn-danger"
-                      onClick={() =>
-                        handleQuantityChange(dish.dish_id, 'decrement')
-                      }
-                    >
-                      -
-                    </button>
-                    <span>{quantities[dish.dish_id] || 0}</span>
-                    <button
-                      type="button"
-                      className="btn btn-success"
-                      onClick={() =>
-                        handleQuantityChange(dish.dish_id, 'increment')
-                      }
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-
-                {/* Dish Image */}
-                <div className="text-end">
-                  <img
-                    src={dish.dish_image || 'https://i.imgur.com/PoJfqsD.jpg'}
-                    alt={dish.dish_name}
-                    className="dish-image"
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+                >
+                  -
+                </button>
+                <p
+                  data-testid={`quantity-${dish.dish_id}`}
+                  className="quantity-text"
+                >
+                  {quantities[dish.dish_id] || 0}
+                </p>
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={() =>
+                    handleQuantityChange(dish.dish_id, 'increment')
+                  }
+                >
+                  +
+                </button>
+              </div>
+            )}
+            <img src={dish.dish_image} alt={dish.dish_name} />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
+
+export default RestaurantMenu
