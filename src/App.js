@@ -4,11 +4,13 @@ import CartContext from './context/CartContext'
 import Home from './components/Home'
 import CartRoute from './components/CartRoute'
 import Navbar from './components/Navbar'
+import LoginRoute from './components/LoginRoute'
+import ProtectedRoute from './components/ProtectedRoute'
 
 class App extends Component {
   state = {
     cartList: [],
-    restaurantName: 'UNI Resto Cafe', // Move restaurantName to App.js
+    restaurantName: 'UNI Resto Cafe',
   }
 
   setRestaurantName = name => {
@@ -58,7 +60,7 @@ class App extends Component {
         .map(item =>
           item.id === productId ? {...item, quantity: item.quantity - 1} : item,
         )
-        .filter(item => item.quantity > 0), // Remove items with quantity <= 0
+        .filter(item => item.quantity > 0),
     }))
   }
 
@@ -83,12 +85,15 @@ class App extends Component {
         <Router>
           <Navbar restaurantName={restaurantName} />
           <Switch>
-            <Route
+            <Route exact path="/login" component={LoginRoute} />
+            <ProtectedRoute
               exact
               path="/"
-              render={() => <Home setRestaurantName={this.setRestaurantName} />}
+              component={() => (
+                <Home setRestaurantName={this.setRestaurantName} />
+              )}
             />
-            <Route exact path="/cart" component={CartRoute} />
+            <ProtectedRoute exact path="/cart" component={CartRoute} />
           </Switch>
         </Router>
       </CartContext.Provider>

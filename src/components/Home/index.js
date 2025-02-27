@@ -2,8 +2,8 @@ import {useEffect, useState, useContext} from 'react'
 import CartContext from '../../context/CartContext'
 import './index.css'
 
-const Home = () => {
-  const {addCartItem, cartCount, setCartCount} = useContext(CartContext)
+const Home = ({setRestaurantName}) => {
+  const {addCartItem} = useContext(CartContext)
   const [categories, setCategories] = useState([])
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [dishes, setDishes] = useState([])
@@ -28,7 +28,6 @@ const Home = () => {
           setSelectedCategory(menuList[0])
           setDishes(menuList[0].category_dishes)
 
-          // Initialize dish quantities to 0
           const initialQuantities = {}
           menuList.forEach(category => {
             category.category_dishes.forEach(dish => {
@@ -60,16 +59,7 @@ const Home = () => {
           ? currentQuantity + 1
           : Math.max(currentQuantity - 1, 0)
 
-      const updatedQuantities = {...prevQuantities, [dishId]: newQuantity}
-
-      // Update cart count dynamically
-      const newCartCount = Object.values(updatedQuantities).reduce(
-        (sum, qty) => sum + qty,
-        0,
-      )
-      setCartCount(newCartCount)
-
-      return updatedQuantities
+      return {...prevQuantities, [dishId]: newQuantity}
     })
   }
 
@@ -89,7 +79,6 @@ const Home = () => {
 
   return (
     <div className="menu-container">
-      {/* Category Buttons */}
       <div className="category-list">
         {categories.map(category => (
           <button
@@ -105,7 +94,6 @@ const Home = () => {
         ))}
       </div>
 
-      {/* Dish List */}
       <div className="dish-list">
         {dishes.map(dish => (
           <div key={dish.dish_id} className="dish-card">
@@ -153,6 +141,7 @@ const Home = () => {
                 type="button"
                 className="add-to-cart-btn"
                 onClick={() => handleAddToCart(dish)}
+                disabled={quantities[dish.dish_id] === 0} // Disable if quantity is 0
               >
                 Add to Cart
               </button>

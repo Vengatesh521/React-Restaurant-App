@@ -37,9 +37,6 @@ const LoginRoute = () => {
     const options = {
       method: 'POST',
       body: JSON.stringify(userDetails),
-      headers: {
-        'Content-Type': 'application/json',
-      },
     }
     const response = await fetch(url, options)
     const data = await response.json()
