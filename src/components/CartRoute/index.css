@@ -1,0 +1,38 @@
+.cart-container {
+  padding: 20px;
+  text-align: center;
+}
+
+.empty-cart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.empty-cart-image {
+  width: 250px;
+  height: auto;
+}
+
+.cart-item {
+  list-style: none;
+  padding: 10px;
+  border: 1px solid #ddd;
+  margin: 10px 0;
+}
+
+.quantity-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.remove-all {
+  background-color: red;
+  color: white;
+  padding: 8px;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 10px;
+}

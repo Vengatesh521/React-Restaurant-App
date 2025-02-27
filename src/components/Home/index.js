@@ -1,15 +1,15 @@
-import {useEffect, useState} from 'react'
+import {useEffect, useState, useContext} from 'react'
+import CartContext from '../../context/CartContext'
 import './index.css'
 
-const RestaurantMenu = () => {
+const Home = () => {
+  const {addCartItem, cartCount, setCartCount} = useContext(CartContext)
   const [categories, setCategories] = useState([])
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [dishes, setDishes] = useState([])
   const [quantities, setQuantities] = useState({})
-  const [cartCount, setCartCount] = useState(0)
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [restaurantName, setRestaurantName] = useState('Restaurant')
 
   const dishesApiUrl =
     'https://apis2.ccbp.in/restaurant-app/restaurant-menu-list-details'
@@ -18,9 +18,8 @@ const RestaurantMenu = () => {
     const fetchMenuData = async () => {
       try {
         const response = await fetch(dishesApiUrl)
-        if (!response.ok) {
-          throw new Error('Failed to fetch menu data')
-        }
+        if (!response.ok) throw new Error('Failed to fetch menu data')
+
         const data = await response.json()
         const menuList = data[0]?.table_menu_list || []
         setCategories(menuList)
@@ -28,9 +27,6 @@ const RestaurantMenu = () => {
         if (menuList.length > 0) {
           setSelectedCategory(menuList[0])
           setDishes(menuList[0].category_dishes)
-
-          // Set restaurant name dynamically
-          setRestaurantName(data[0]?.restaurant_name || 'Restaurant')
 
           // Initialize dish quantities to 0
           const initialQuantities = {}
@@ -54,13 +50,6 @@ const RestaurantMenu = () => {
   const handleCategoryClick = category => {
     setSelectedCategory(category)
     setDishes(category.category_dishes)
-
-    // Reset the dish quantities to 0 for the new category
-    const updatedQuantities = {}
-    category.category_dishes.forEach(dish => {
-      updatedQuantities[dish.dish_id] = quantities[dish.dish_id] || 0
-    })
-    setQuantities(updatedQuantities)
   }
 
   const handleQuantityChange = (dishId, action) => {
@@ -84,25 +73,22 @@ const RestaurantMenu = () => {
     })
   }
 
-  if (loading) {
-    return <p>Loading menu...</p>
+  const handleAddToCart = dish => {
+    if (quantities[dish.dish_id] > 0) {
+      addCartItem({
+        id: dish.dish_id,
+        name: dish.dish_name,
+        price: dish.dish_price,
+        quantity: quantities[dish.dish_id],
+      })
+    }
   }
 
-  if (error) {
-    return <p>Error: {error}</p>
-  }
+  if (loading) return <p>Loading menu...</p>
+  if (error) return <p>Error: {error}</p>
 
   return (
     <div className="menu-container">
-      {/* Navigation Bar */}
-      <nav className="navbar">
-        <h1>{restaurantName}</h1>
-        <p>My Orders</p>
-        <span className="cart-icon" role="img" aria-label="cart">
-          🛒 {cartCount}
-        </span>
-      </nav>
-
       {/* Category Buttons */}
       <div className="category-list">
         {categories.map(category => (
@@ -128,7 +114,7 @@ const RestaurantMenu = () => {
               {dish.dish_currency} {dish.dish_price}
             </p>
             <p>{dish.dish_description}</p>
-            <p role="paragraph">{dish.dish_calories} calories</p>
+            <p>{dish.dish_calories} calories</p>
             {dish.addonCat.length > 0 && <p>Customizations available</p>}
             {!dish.dish_Availability && <p>Not available</p>}
             {dish.dish_Availability && (
@@ -139,6 +125,7 @@ const RestaurantMenu = () => {
                   onClick={() =>
                     handleQuantityChange(dish.dish_id, 'decrement')
                   }
+                  disabled={quantities[dish.dish_id] === 0}
                 >
                   -
                 </button>
@@ -159,7 +146,17 @@ const RestaurantMenu = () => {
                 </button>
               </div>
             )}
+
             <img src={dish.dish_image} alt={dish.dish_name} />
+            {dish.dish_Availability && (
+              <button
+                type="button"
+                className="add-to-cart-btn"
+                onClick={() => handleAddToCart(dish)}
+              >
+                Add to Cart
+              </button>
+            )}
           </div>
         ))}
       </div>
@@ -167,4 +164,4 @@ const RestaurantMenu = () => {
   )
 }
 
-export default RestaurantMenu
+export default Home
