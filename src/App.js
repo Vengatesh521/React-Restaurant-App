@@ -3,18 +3,12 @@ import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'
 import CartContext from './context/CartContext'
 import Home from './components/Home'
 import CartRoute from './components/CartRoute'
-import Navbar from './components/Navbar'
 import LoginRoute from './components/LoginRoute'
 import ProtectedRoute from './components/ProtectedRoute'
 
 class App extends Component {
   state = {
     cartList: [],
-    restaurantName: 'UNI Resto Cafe',
-  }
-
-  setRestaurantName = name => {
-    this.setState({restaurantName: name})
   }
 
   addCartItem = product => {
@@ -69,7 +63,7 @@ class App extends Component {
   }
 
   render() {
-    const {cartList, restaurantName} = this.state
+    const {cartList} = this.state
 
     return (
       <CartContext.Provider
@@ -83,7 +77,6 @@ class App extends Component {
         }}
       >
         <Router>
-          <Navbar restaurantName={restaurantName} />
           <Switch>
             <Route exact path="/login" component={LoginRoute} />
             <ProtectedRoute

@@ -1,6 +1,6 @@
 import {Link, useHistory} from 'react-router-dom'
 import {useContext} from 'react'
-import Cookies from 'js-cookie' // Import Cookies to remove the JWT token
+import Cookies from 'js-cookie'
 import CartContext from '../../context/CartContext'
 import './index.css'
 
@@ -10,9 +10,7 @@ const Navbar = ({restaurantName}) => {
   const cartCount = cartList.reduce((total, item) => total + item.quantity, 0)
 
   const handleLogout = () => {
-    // Remove the JWT token from cookies
     Cookies.remove('jwt_token')
-    // Redirect to the login page
     history.replace('/login')
   }
 

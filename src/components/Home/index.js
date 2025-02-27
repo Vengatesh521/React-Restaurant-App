@@ -1,8 +1,9 @@
 import {useEffect, useState, useContext} from 'react'
 import CartContext from '../../context/CartContext'
+import Navbar from '../Navbar' // Import Navbar
 import './index.css'
 
-const Home = ({setRestaurantName}) => {
+const Home = () => {
   const {addCartItem} = useContext(CartContext)
   const [categories, setCategories] = useState([])
   const [selectedCategory, setSelectedCategory] = useState(null)
@@ -78,76 +79,77 @@ const Home = ({setRestaurantName}) => {
   if (error) return <p>Error: {error}</p>
 
   return (
-    <div className="menu-container">
-      <div className="category-list">
-        {categories.map(category => (
-          <button
-            type="button"
-            key={category.menu_category_id}
-            className={`category-item ${
-              selectedCategory === category ? 'active' : ''
-            }`}
-            onClick={() => handleCategoryClick(category)}
-          >
-            {category.menu_category}
-          </button>
-        ))}
-      </div>
-
-      <div className="dish-list">
-        {dishes.map(dish => (
-          <div key={dish.dish_id} className="dish-card">
-            <h3>{dish.dish_name}</h3>
-            <p>
-              {dish.dish_currency} {dish.dish_price}
-            </p>
-            <p>{dish.dish_description}</p>
-            <p>{dish.dish_calories} calories</p>
-            {dish.addonCat.length > 0 && <p>Customizations available</p>}
-            {!dish.dish_Availability && <p>Not available</p>}
-            {dish.dish_Availability && (
-              <div className="quantity-controls">
-                <button
-                  type="button"
-                  className="btn btn-danger"
-                  onClick={() =>
-                    handleQuantityChange(dish.dish_id, 'decrement')
-                  }
-                  disabled={quantities[dish.dish_id] === 0}
-                >
-                  -
-                </button>
-                <p
-                  data-testid={`quantity-${dish.dish_id}`}
-                  className="quantity-text"
-                >
-                  {quantities[dish.dish_id] || 0}
-                </p>
-                <button
-                  type="button"
-                  className="btn btn-success"
-                  onClick={() =>
-                    handleQuantityChange(dish.dish_id, 'increment')
-                  }
-                >
-                  +
-                </button>
-              </div>
-            )}
-
-            <img src={dish.dish_image} alt={dish.dish_name} />
-            {dish.dish_Availability && (
+    <div>
+      <Navbar restaurantName="UNI Resto Cafe" /> {/* Add Navbar */}
+      <div className="menu-container">
+        <ul className="category-list">
+          {categories.map(category => (
+            <li key={category.menu_category_id}>
               <button
                 type="button"
-                className="add-to-cart-btn"
-                onClick={() => handleAddToCart(dish)}
-                disabled={quantities[dish.dish_id] === 0} // Disable if quantity is 0
+                className={`category-item ${
+                  selectedCategory === category ? 'active' : ''
+                }`}
+                onClick={() => handleCategoryClick(category)}
               >
-                Add to Cart
+                {category.menu_category}
               </button>
-            )}
-          </div>
-        ))}
+            </li>
+          ))}
+        </ul>
+
+        <ul className="dish-list">
+          {dishes.map(dish => (
+            <li key={dish.dish_id} className="dish-card">
+              <h3>{dish.dish_name}</h3>
+              <p>
+                {dish.dish_currency} {dish.dish_price}
+              </p>
+              <p>{dish.dish_description}</p>
+              <p>{dish.dish_calories} calories</p>
+              {dish.addonCat.length > 0 && <p>Customizations available</p>}
+              {!dish.dish_Availability && <p>Not available</p>}
+              {
+                <div className="quantity-controls">
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={() =>
+                      handleQuantityChange(dish.dish_id, 'decrement')
+                    }
+                    disabled={quantities[dish.dish_id] === 0}
+                  >
+                    -
+                  </button>
+                  <p className="quantity-text">
+                    {quantities[dish.dish_id] || 0}
+                  </p>
+                  <button
+                    type="button"
+                    className="btn btn-success"
+                    onClick={() =>
+                      handleQuantityChange(dish.dish_id, 'increment')
+                    }
+                  >
+                    +
+                  </button>
+                </div>
+              }
+
+              <img src={dish.dish_image} alt={dish.dish_name} />
+              {dish.dish_Availability && (
+                <button
+                  type="button"
+                  className="add-to-cart-btn"
+                  onClick={() => handleAddToCart(dish)}
+                  disabled={quantities[dish.dish_id] === 0} // Disable if quantity is 0
+                >
+                  Add to Cart
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   )
