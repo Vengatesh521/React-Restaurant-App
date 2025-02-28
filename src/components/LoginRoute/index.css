@@ -1,113 +1,57 @@
-/* General Styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Arial', sans-serif;
-}
-
-body {
-  background-color: #f8f9fa;
+.login-form-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  background-color: #f9f9f9;
 }
 
-/* Login Form Container */
-.login-form-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.form-container {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
-  background-color: #fff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Website Logo */
-.login-website-logo-mobile-img {
-  width: 150px;
-  margin-bottom: 20px;
-}
-
-.login-website-logo-desktop-img {
-  width: 180px;
-  margin-bottom: 20px;
-}
-
-/* Input Containers */
 .input-container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 1.5rem;
 }
 
-/* Labels */
 .input-label {
-  font-size: 14px;
+  display: block;
+  margin-bottom: 0.5rem;
   font-weight: bold;
-  color: #333;
-  margin-bottom: 5px;
 }
 
-/* Input Fields */
 .username-input-field,
 .password-input-field {
   width: 100%;
-  padding: 10px;
+  padding: 0.5rem;
   border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 16px;
-  transition: all 0.3s ease;
+  border-radius: 4px;
+  font-size: 1rem;
 }
 
-.username-input-field:focus,
-.password-input-field:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-/* Login Button */
 .login-button {
   width: 100%;
+  padding: 0.75rem;
   background-color: #007bff;
-  color: #fff;
+  color: white;
   border: none;
-  padding: 12px;
-  border-radius: 6px;
-  font-size: 16px;
-  font-weight: bold;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  font-size: 1rem;
 }
 
-.login-button:hover {
-  background-color: #0056b3;
+.login-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
 }
 
-/* Error Message */
 .error-message {
-  color: red;
-  font-size: 14px;
-  margin-top: 10px;
-  text-align: center;
-}
-
-/* Responsive Design */
-@media (min-width: 768px) {
-  .login-form-container {
-    max-width: 500px;
-  }
-
-  .login-img {
-    display: block;
-    width: 100%;
-    max-width: 350px;
-    margin-bottom: 20px;
-  }
+  color: #dc3545;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
 }

@@ -1,156 +1,119 @@
 import {useEffect, useState, useContext} from 'react'
 import CartContext from '../../context/CartContext'
-import Navbar from '../Navbar' // Import Navbar
+import Header from '../Header'
+import DishItem from '../DishItem'
 import './index.css'
 
 const Home = () => {
-  const {addCartItem} = useContext(CartContext)
-  const [categories, setCategories] = useState([])
-  const [selectedCategory, setSelectedCategory] = useState(null)
-  const [dishes, setDishes] = useState([])
-  const [quantities, setQuantities] = useState({})
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const {cartList, setRestaurantName, addCartItem, removeCartItem} = useContext(
+    CartContext,
+  )
+  const [activeCategoryId, setActiveCategoryId] = useState('')
+  const [response, setResponse] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
   const dishesApiUrl =
     'https://apis2.ccbp.in/restaurant-app/restaurant-menu-list-details'
 
-  useEffect(() => {
-    const fetchMenuData = async () => {
-      try {
-        const response = await fetch(dishesApiUrl)
-        if (!response.ok) throw new Error('Failed to fetch menu data')
+  const getUpdatedData = tableMenuList =>
+    tableMenuList.map(eachMenu => ({
+      menuCategory: eachMenu.menu_category,
+      menuCategoryId: eachMenu.menu_category_id,
+      menuCategoryImage: eachMenu.menu_category_image,
+      categoryDishes: eachMenu.category_dishes.map(eachDish => ({
+        dishId: eachDish.dish_id,
+        dishName: eachDish.dish_name,
+        dishPrice: eachDish.dish_price,
+        dishImage: eachDish.dish_image,
+        dishCurrency: eachDish.dish_currency,
+        dishCalories: eachDish.dish_calories,
+        dishDescription: eachDish.dish_description,
+        dishAvailability: eachDish.dish_Availability,
+        dishType: eachDish.dish_Type,
+        addonCart: eachDish.addonCat,
+      })),
+    }))
 
-        const data = await response.json()
-        const menuList = data[0]?.table_menu_list || []
-        setCategories(menuList)
-
-        if (menuList.length > 0) {
-          setSelectedCategory(menuList[0])
-          setDishes(menuList[0].category_dishes)
-
-          const initialQuantities = {}
-          menuList.forEach(category => {
-            category.category_dishes.forEach(dish => {
-              initialQuantities[dish.dish_id] = 0
-            })
-          })
-          setQuantities(initialQuantities)
-        }
-        setLoading(false)
-      } catch (err) {
-        setError(err.message)
-        setLoading(false)
-      }
+  const fetchRestaurantApi = async () => {
+    try {
+      const apiResponse = await fetch(dishesApiUrl)
+      const data = await apiResponse.json()
+      const updatedData = getUpdatedData(data[0]?.table_menu_list || [])
+      setResponse(updatedData)
+      setRestaurantName(data[0].restaurant_name)
+      setActiveCategoryId(updatedData[0]?.menuCategoryId || '')
+      setIsLoading(false)
+    } catch (error) {
+      console.error('Error fetching restaurant data:', error)
     }
+  }
 
-    fetchMenuData()
+  useEffect(() => {
+    fetchRestaurantApi()
   }, [])
 
-  const handleCategoryClick = category => {
-    setSelectedCategory(category)
-    setDishes(category.category_dishes)
+  const onUpdateActiveCategoryId = menuCategoryId => {
+    setActiveCategoryId(menuCategoryId)
   }
 
-  const handleQuantityChange = (dishId, action) => {
-    setQuantities(prevQuantities => {
-      const currentQuantity = prevQuantities[dishId] || 0
-      const newQuantity =
-        action === 'increment'
-          ? currentQuantity + 1
-          : Math.max(currentQuantity - 1, 0)
+  const renderTabMenuList = () =>
+    response.map(eachCategory => {
+      const onClickHandler = () => {
+        onUpdateActiveCategoryId(eachCategory.menuCategoryId)
+      }
+      const isActive = eachCategory.menuCategoryId === activeCategoryId
 
-      return {...prevQuantities, [dishId]: newQuantity}
+      return (
+        <li
+          className={`each-tab-item ${isActive ? 'active-tab-item' : ''}`}
+          key={eachCategory.menuCategoryId}
+        >
+          <button
+            type="button"
+            className="mt-0 mb-0 ml-2 mr-2 tab-category-button"
+            onClick={onClickHandler}
+            aria-pressed={isActive}
+          >
+            {eachCategory.menuCategory}
+          </button>
+        </li>
+      )
     })
+
+  const renderDishes = () => {
+    const activeCategory = response.find(
+      eachCategory => eachCategory.menuCategoryId === activeCategoryId,
+    )
+
+    return (
+      <ul className="m-0 d-flex flex-column dishes-list-container">
+        {activeCategory?.categoryDishes.map(eachDish => (
+          <DishItem
+            key={eachDish.dishId}
+            dishDetails={eachDish}
+            addItemToCart={addCartItem}
+            removeItemFromCart={removeCartItem}
+          />
+        ))}
+      </ul>
+    )
   }
 
-  const handleAddToCart = dish => {
-    if (quantities[dish.dish_id] > 0) {
-      addCartItem({
-        id: dish.dish_id,
-        name: dish.dish_name,
-        price: dish.dish_price,
-        quantity: quantities[dish.dish_id],
-      })
-    }
-  }
-
-  if (loading) return <p>Loading menu...</p>
-  if (error) return <p>Error: {error}</p>
-
-  return (
-    <div>
-      <Navbar restaurantName="UNI Resto Cafe" /> {/* Add Navbar */}
-      <div className="menu-container">
-        <ul className="category-list">
-          {categories.map(category => (
-            <li key={category.menu_category_id}>
-              <button
-                type="button"
-                className={`category-item ${
-                  selectedCategory === category ? 'active' : ''
-                }`}
-                onClick={() => handleCategoryClick(category)}
-              >
-                {category.menu_category}
-              </button>
-            </li>
-          ))}
-        </ul>
-
-        <ul className="dish-list">
-          {dishes.map(dish => (
-            <li key={dish.dish_id} className="dish-card">
-              <h3>{dish.dish_name}</h3>
-              <p>
-                {dish.dish_currency} {dish.dish_price}
-              </p>
-              <p>{dish.dish_description}</p>
-              <p>{dish.dish_calories} calories</p>
-              {dish.addonCat.length > 0 && <p>Customizations available</p>}
-              {!dish.dish_Availability && <p>Not available</p>}
-              {
-                <div className="quantity-controls">
-                  <button
-                    type="button"
-                    className="btn btn-danger"
-                    onClick={() =>
-                      handleQuantityChange(dish.dish_id, 'decrement')
-                    }
-                    disabled={quantities[dish.dish_id] === 0}
-                  >
-                    -
-                  </button>
-                  <p className="quantity-text">
-                    {quantities[dish.dish_id] || 0}
-                  </p>
-                  <button
-                    type="button"
-                    className="btn btn-success"
-                    onClick={() =>
-                      handleQuantityChange(dish.dish_id, 'increment')
-                    }
-                  >
-                    +
-                  </button>
-                </div>
-              }
-
-              <img src={dish.dish_image} alt={dish.dish_name} />
-              {dish.dish_Availability && (
-                <button
-                  type="button"
-                  className="add-to-cart-btn"
-                  onClick={() => handleAddToCart(dish)}
-                  disabled={quantities[dish.dish_id] === 0} // Disable if quantity is 0
-                >
-                  Add to Cart
-                </button>
-              )}
-            </li>
-          ))}
-        </ul>
+  const renderSpinner = () => (
+    <div className="spinner-container">
+      <div className="spinner-border" role="status">
+        <span className="visually-hidden">Loading...</span>
       </div>
+    </div>
+  )
+
+  return isLoading ? (
+    renderSpinner()
+  ) : (
+    <div className="home-background">
+      <Header cartItems={cartList} />
+      <ul className="m-0 ps-0 d-flex tab-container">{renderTabMenuList()}</ul>
+      {renderDishes()}
     </div>
   )
 }

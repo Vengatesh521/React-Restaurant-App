@@ -1,0 +1,60 @@
+.nav-header {
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.restaurant-name {
+  text-decoration: none;
+}
+
+.logo-heading {
+  color: #007bff;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.my-order-text {
+  color: #495057;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.my-order-text:hover {
+  color: #007bff;
+}
+
+.cart-icon-link {
+  position: relative;
+  margin: 0 15px;
+}
+
+.cart-icon-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.cart-icon {
+  font-size: 24px;
+  color: #495057;
+}
+
+.cart-icon:hover {
+  color: #007bff;
+}
+
+.cart-count-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 18px;
+  height: 18px;
+  background-color: #dc3545;
+  border-radius: 50%;
+}
+
+.cart-count {
+  color: white;
+  font-size: 12px;
+}
