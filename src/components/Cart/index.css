@@ -1,43 +1,120 @@
+/* Cart Container */
 .cart-container {
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 20px;
-  min-height: 80vh;
+  min-height: calc(100vh - 80px); /* Adjust based on header height */
 }
 
+/* Cart Header */
 .cart-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e9ecef;
 }
 
+.cart-header h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #343a40;
+  margin: 0;
+}
+
+/* Remove All Button */
+.remove-all {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.remove-all:hover {
+  background-color: #c82333;
+}
+
+.remove-all:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.5);
+}
+
+/* Cart Items List */
 .cart-items-list {
-  list-style-type: none;
+  list-style: none;
   padding: 0;
+  margin: 0;
 }
 
+/* Empty Cart View */
 .empty-cart {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 60vh;
+  min-height: calc(100vh - 120px); /* Adjust based on header height */
+  text-align: center;
 }
 
 .empty-cart-image {
-  max-width: 300px;
+  width: 200px; /* Fixed width */
+  height: 200px; /* Fixed height */
+  object-fit: contain; /* Ensures image maintains aspect ratio */
   margin-bottom: 20px;
 }
 
-.remove-all {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
+.empty-cart p {
+  font-size: 18px;
+  color: #6c757d;
+  margin: 0;
 }
 
-.remove-all:hover {
-  background-color: #c82333;
+/* Responsive Design */
+@media (max-width: 768px) {
+  .cart-container {
+    padding: 15px;
+  }
+
+  .cart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .cart-header h1 {
+    font-size: 20px;
+  }
+
+  .remove-all {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .empty-cart-image {
+    width: 150px;
+    height: 150px;
+  }
+
+  .empty-cart p {
+    font-size: 16px;
+  }
+}
+
+/* Accessibility */
+[data-testid='cart'] {
+  position: relative;
+}
+
+[data-testid='remove-all'] {
+  transition: transform 0.2s ease;
+}
+
+[data-testid='remove-all']:active {
+  transform: scale(0.95);
 }

@@ -13,7 +13,6 @@ const DishItem = ({dishDetails}) => {
     dishCalories,
     addonCat,
     dishAvailability,
-    dishId,
   } = dishDetails
 
   const [quantity, setQuantity] = useState(0)
